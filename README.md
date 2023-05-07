@@ -13,8 +13,11 @@
 -   useEffect
     ```javascript
     useEffect(() => {
-        // todo...
-    }, []);
+        console.log("Mount!");
+        return () => {
+            console.log("Unmount!");
+        };
+    }, [Dependency Array]);
     ```
 
 ### React에서 API 호출하기
