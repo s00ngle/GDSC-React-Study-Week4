@@ -570,8 +570,97 @@
     ```
 
 -   `Context Provider`를 통한 데이터 공급
+
     ```javascript
     <MyContext.Provider value={전역으로 전달하고자 하는 값}>
         {/*이 Context 안에 위치할 자식 컴포넌트들*/}
     </MyContext.Provider>
     ```
+
+-   프로젝트에 적용
+
+    ```javascript
+    export const DiaryStateContext = React.createContext();
+    ```
+
+    -   App 컴포넌트가 return하는 부분의 최상위 태그를 변경해주어야 한다.
+
+        ```javascript
+        function App() {
+            // ...
+            return (
+                <DiaryStateContext.Provider value={data}>
+                    <div className="App">내용</div>
+                </DiaryStateContext.Provider>
+            );
+        }
+        ```
+
+    -   `DiaryList` 컴포넌트의 Props 중에서 거쳐가기만 하는 `diaryList` 를 삭제한 뒤 `Context` 에서 받아온다.
+        ```javascript
+        const DiaryList = ({ onEdit, onRemove }) => {
+            const diaryList = useContext(DiaryStateContext);
+            // ...
+        };
+        ```
+    -   상태 변화 함수 Context로 공급하기
+
+        DiaryStateContext.Provider의 props로 onEdit, onRemove를 전부 전달하면 될 것 같지만, 이런 방식으로 공급하면 안된다.
+
+        Provider 또한 컴포넌트이기 때문에 props가 바뀌면 재생성되고, 밑에있는 컴포넌트들도 전부 재생성된다. 그렇기 때문에 data와 함께 onEdit, onRemove를 같이 보내버리면 data state가 바뀔 때 마다 렌더링이 일어나게 되어 최적화가 풀려버리게 된다.
+
+        이럴땐 Context를 중첩으로 사용하면 된다.
+
+        ```javascript
+        export const DiaryStateContext = React.createContext();
+        export const DiaryDispatchContext = React.createContext();
+
+        function App() {
+            // ...
+            return (
+                <DiaryStateContext.Provider value={data}>
+                    <DiaryDispatchContext.Provider>
+                        <div className="App">내용</div>
+                    </DiaryDispatchContext.Provider>
+                </DiaryStateContext.Provider>
+            );
+        }
+        ```
+
+        `memoizedDispatches` 는 절대 재생성 될 일이 없게 dependency array를 빈 배열로 저장한다.
+
+        ```javascript
+        const memoizedDispatches = useMemo(() => {
+            return { onCreate, onRemove, onEdit };
+        }, []);
+        ```
+
+        `memoizedDispatches` 를 `DiaryDispatchContext.Provider` 의 value 로 전달해준다.
+
+        ```javascript
+        function App() {
+            // ...
+            return (
+                <DiaryStateContext.Provider value={data}>
+                    <DiaryDispatchContext.Provider>
+                        <div className="App">내용</div>
+                    </DiaryDispatchContext.Provider>
+                </DiaryStateContext.Provider>
+            );
+        }
+        ```
+
+        이제 onCreate, onEdit, onRemove를 Props로 전달할 필요가 없다.
+
+-   `export` 와 `default export` 의 차이
+    ```javascript
+    import React, {
+        useRef,
+        useEffect,
+        useMemo,
+        useCallback,
+        useReducer,
+    } from "react";
+    ```
+    -   `default export` 는 한 가지만 가능하며 import 시 이름 변경이 가능하다.
+    -   `export` 는 여러가지 가능하며 import 시 이름 변경이 불가능하고, 비구조화 할당으로만 import 받을 수 있다.
