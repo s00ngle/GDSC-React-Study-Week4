@@ -198,7 +198,7 @@
 
 ### 최적화 3 - useCallback
 
--   `useCallback`
+-   `useCallback` : 메모이제이션된 콜백을 반환한다.
     ```javascript
     const memoizedCallback = useCallback(() => {
         doSomething(a, b);
