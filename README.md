@@ -82,7 +82,7 @@
 
 -   컴포넌트 재사용
 
-    -   <img src="/REAEME_img/norerender.png" width="450px" height="300px"></img><br/>
+    -   <img src="/README_img/norerender.png" width="450px" height="300px"></img><br/>
 
 ### 최적화 3 - useCallback
 
