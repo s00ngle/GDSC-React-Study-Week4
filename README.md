@@ -629,6 +629,8 @@
 
         `memoizedDispatches` 는 절대 재생성 될 일이 없게 dependency array를 빈 배열로 저장한다.
 
+        `useMemo()` 를 사용하지 않으면 `App` 컴포넌트가 재생성 될 때 `memoizedDispatches` 도 재생성 되기 때문에 최적화가 풀릴 수 있어 주의해야한다.
+
         ```javascript
         const memoizedDispatches = useMemo(() => {
             return { onCreate, onRemove, onEdit };
@@ -652,6 +654,42 @@
 
         이제 onCreate, onEdit, onRemove를 Props로 전달할 필요가 없다.
 
+        `DiaryEditor` 에서 Props로 받는 `onCreate` 를 지워준 뒤 `useCntoext()`를 사용해 받아온다.
+
+        이 때, `DiaryDispatchContext` 는 `onCreate`, `onEdit`, `onRemove` 를 담고 있기 때문에 비구조 할당으로 받아와야 한다.
+
+        ```javascript
+        const { onCreate } = useContext(DiaryDispatchContext);
+        ```
+
+        `DiaryList`, `DiaryItem` 에서도 동일하게 onEidt 과 onRemove 가 있는 부분을 전부 지운 뒤 `useContext()` 를 사용해서 받아온다.
+
+        ```javascript
+        const DiaryList = () => {
+            const diaryList = useContext(DiaryStateContext);
+            return (
+                <div className="DiaryList">
+                    <h2>일기 리스트</h2>
+                    <h4>{diaryList.length}개의 일기가 있습니다.</h4>
+                    <div>
+                        {diaryList.map((it) => (
+                            <DiaryItem key={it.id} {...it} />
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+        ```
+
+        ```javascript
+        const DiaryItem = ({ id, author, content, emotion, created_date }) => {
+            const { onRemove, onEdit } = useContext(DiaryDispatchContext);
+            // ...
+        };
+        ```
+
+---
+
 -   `export` 와 `default export` 의 차이
     ```javascript
     import React, {
@@ -664,3 +702,7 @@
     ```
     -   `default export` 는 한 가지만 가능하며 import 시 이름 변경이 가능하다.
     -   `export` 는 여러가지 가능하며 import 시 이름 변경이 불가능하고, 비구조화 할당으로만 import 받을 수 있다.
+
+```
+
+```
