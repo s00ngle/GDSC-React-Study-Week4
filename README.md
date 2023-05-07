@@ -60,6 +60,24 @@
 
 ### 최적화 1 - useMemo
 
+-   연산 결과 재사용
+
+    -   Memoization
+        이미 계산한 결과를 기억 해 두었다가 동일한 연산 수행 시 다시 연산하지 않고 기억 해 두었던 데이터를 반환하는 방법
+    -   useMemo
+
+    ```javascript
+    const getDiaryAnalysis = useMemo(() => {
+        console.log("일기 분석 시작");
+        const goodCount = data.filter((it) => it.emotion >= 5).length;
+        const badCount = data.length - goodCount;
+        const goodRatio = (goodCount / data.length) * 100;
+        return { goodCount, badCount, goodRatio };
+    }, [data.length]);
+
+    const { goodCount, badCount, goodRatio } = getDiaryAnalysis;
+    ```
+
 ### 최적화 2 - React.memo
 
 ### 최적화 3 - useCallback
