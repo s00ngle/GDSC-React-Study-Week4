@@ -4,10 +4,10 @@
 
 ### React Lifecycle 제어하기 - useEffect
 
-* Lifecycle?
-  * 탄생 : Mount
-  * 변화 : Update
-  * 죽음 : UnMount
+-   Lifecycle?
+    -   탄생 : Mount
+    -   변화 : Update
+    -   죽음 : UnMount
 
 ### React에서 API 호출하기
 
