@@ -80,6 +80,10 @@
 
 ### 최적화 2 - React.memo
 
+-   컴포넌트 재사용
+
+    -   <img src="/REAEME_img/norerender.png" width="450px" height="300px"></img><br/>
+
 ### 최적화 3 - useCallback
 
 ### 최적화 4 - 최적화 완성
