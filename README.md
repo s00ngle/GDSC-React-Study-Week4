@@ -1,6 +1,8 @@
 # GDSC React 스터디 4주차
 
 ## React 기본 - 일기장 만들어보기 (2)
+-   https://s00ngle.github.io/GDSC-React-Study-Week4/
+---
 
 ### React Lifecycle 제어하기 - useEffect
 
