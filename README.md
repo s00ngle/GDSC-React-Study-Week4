@@ -123,6 +123,37 @@ const OptimizeTest = () => {
 };
 ```
 
+-   객체의 얕은 비교로 인한 문제
+
+    -   javascript는 객체의 주소에 의한 비교(얕은 비교)를 하기 때문
+
+    ```javascript
+    const CounterB = React.memo(({ obj }) => {
+        useEffect(() => {
+            console.log(`CounterB Update - count: ${obj.count}`);
+        });
+        return <div>{obj.count}</div>;
+    });
+
+    const OptimizeTest = () => {
+        const [obj, setObj] = useState({
+            count: 1,
+        });
+
+        return (
+            <div style={{ padding: 50 }}>
+                <div>
+                    <h2>Counter B</h2>
+                    <CounterB obj={obj} />
+                    <button onClick={() => setObj({ count: obj.count })}>
+                        B button
+                    </button>
+                </div>
+            </div>
+        );
+    };
+    ```
+
 ### 최적화 3 - useCallback
 
 ### 최적화 4 - 최적화 완성
@@ -130,7 +161,3 @@ const OptimizeTest = () => {
 ### 복잡한 상태 관리 로직 분리하기 - useReducer
 
 ### 컴포넌트 트리에 데이터 공급하기 - Context
-
-```
-
-```
