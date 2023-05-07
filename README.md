@@ -64,25 +64,64 @@
 
     -   Memoization
         이미 계산한 결과를 기억 해 두었다가 동일한 연산 수행 시 다시 연산하지 않고 기억 해 두었던 데이터를 반환하는 방법
-    -   useMemo
 
-    ```javascript
-    const getDiaryAnalysis = useMemo(() => {
-        console.log("일기 분석 시작");
-        const goodCount = data.filter((it) => it.emotion >= 5).length;
-        const badCount = data.length - goodCount;
-        const goodRatio = (goodCount / data.length) * 100;
-        return { goodCount, badCount, goodRatio };
-    }, [data.length]);
+-   useMemo
 
-    const { goodCount, badCount, goodRatio } = getDiaryAnalysis;
-    ```
+```javascript
+const getDiaryAnalysis = useMemo(() => {
+    console.log("일기 분석 시작");
+    const goodCount = data.filter((it) => it.emotion >= 5).length;
+    const badCount = data.length - goodCount;
+    const goodRatio = (goodCount / data.length) * 100;
+    return { goodCount, badCount, goodRatio };
+}, [data.length]);
+
+const { goodCount, badCount, goodRatio } = getDiaryAnalysis;
+```
 
 ### 최적화 2 - React.memo
 
 -   컴포넌트 재사용
     <img src="/README_img/update.png" width="500px" height="450px"></img><br/>
     업데이트 조건을 걸어준다.
+
+-   React.memo
+
+```javascript
+const Textview = React.memo(({ text }) => {
+    useEffect(() => {
+        console.log(`Update : Text : ${text}`);
+    });
+    return <div>{text}</div>;
+});
+
+const Countview = React.memo(({ count }) => {
+    useEffect(() => {
+        console.log(`Update :: Count : ${count}`);
+    });
+    return <div>{count}</div>;
+});
+
+const OptimizeTest = () => {
+    const [count, setCount] = useState(1);
+    const [text, setText] = useState("");
+
+    return (
+        <div style={{ padding: 50 }}>
+            <div>
+                <h2>count</h2>
+                <Countview count={count} />
+                <button onClick={() => setCount(count + 1)}>+</button>
+            </div>
+            <div>
+                <h2>text</h2>
+                <Textview text={text} />
+                <input value={text} onChange={(e) => setText(e.target.value)} />
+            </div>
+        </div>
+    );
+};
+```
 
 ### 최적화 3 - useCallback
 
@@ -91,3 +130,7 @@
 ### 복잡한 상태 관리 로직 분리하기 - useReducer
 
 ### 컴포넌트 트리에 데이터 공급하기 - Context
+
+```
+
+```
