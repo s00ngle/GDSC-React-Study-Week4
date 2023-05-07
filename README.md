@@ -82,7 +82,9 @@
 ### 최적화 2 - React.memo
 
 -   컴포넌트 재사용
+
     <img src="/README_img/update.png" width="500px" height="450px"></img><br/>
+
     업데이트 조건을 걸어준다.
 
 -   `React.memo`
