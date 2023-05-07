@@ -371,6 +371,182 @@
 
 ### 복잡한 상태 관리 로직 분리하기 - useReducer
 
+-   현재까지 사용된 상태 변화 처리 함수
+
+    -   onCreate
+    -   onEdit
+    -   onRemove
+
+    상태 변화 함수들은 컴포넌트 안에만 존재해야했다.
+
+    상태를 업데이트 하기 위해서는 기존의 상태를 참조해야 했기 때문이다.
+
+-   `useReducer`
+
+    상태변화 로직들을 컴포넌트에서 분리할 수 있게 되어 컴포넌트를 더욱 가볍게 작성할 수 있도록 도와준다.
+
+    ```javascript
+    const Counter = () => {
+        const [count, setCount] = useState(1);
+
+        const add1 = () => {
+            setCount(count + 1);
+        };
+        const add10 = () => {
+            setCount(count + 10);
+        };
+        const add100 = () => {
+            setCount(count + 100);
+        };
+        const add1000 = () => {
+            setCount(count + 1000);
+        };
+        const add10000 = () => {
+            setCount(count + 10000);
+        };
+
+        return (
+            <div>
+                {count}
+                <button onClick={add1}>add 1</button>
+                <button onClick={add10}>add 10</button>
+                <button onClick={add100}>add 100</button>
+                <button onClick={add1000}>add 1000</button>
+                <button onClick={add10000}>add 10000</button>
+            </div>
+        );
+    };
+    ```
+
+    위 코드를 `useReducer()`를 사용해 아래와 같이 작성할 수 있다.
+
+    ```javascript
+    const reducer = (state, action) => {
+        switch (action.type) {
+            case 1:
+                return state + 1;
+            case 10:
+                return state + 10;
+            case 100:
+                return state + 100;
+            case 1000:
+                return state + 1000;
+            case 10000:
+                return state + 10000;
+            default:
+                return state;
+        }
+    };
+
+    const Counter = () => {
+        const [count, dispatch] = useReducer(reducer, 1);
+
+        return (
+            <div>
+                {count}
+                <button onClick={() => dispatch({ type: 1 })}>add 1</button>
+                <button onClick={() => dispatch({ type: 10 })}>add 10</button>
+                <button onClick={() => dispatch({ type: 100 })}>add 100</button>
+                <button onClick={() => dispatch({ type: 1000 })}>
+                    add 1000
+                </button>
+                <button onClick={() => dispatch({ type: 10000 })}>
+                    add 10000
+                </button>
+            </div>
+        );
+    };
+    ```
+
+    -   첫 번째 인자 : `state`
+
+    -   두 번째 인자(`dispatch`) : 상태를 변화시키는 action을 발생시키는 함수
+
+    -   useReducer 첫 번째 인자(`reducer` 함수) : `dispatch`가 발생시킨 상태변화를 처리해주는 함수
+
+    -   useReducer 두 번째 인자 : state의 `초기값`
+
+    -   dispatch 안에 전달되는 객체({ type: 1 }) : `Action` 객체
+
+-   App 컴포넌트로부터 data 상태변화 로직 분리하기
+    1. `useState` 주석처리
+        ```javascript
+        //const [data, setData] = useState([]);
+        ```
+    2. `useReducer`를 사용해서 구현
+        ```javascript
+        const reducer = (state, action) => {
+            switch (action.type) {
+                case "INIT": {
+                    return action.data;
+                }
+                case "CREATE": {
+                    const created_date = new Date().getTime();
+                    const newItem = {
+                        ...action.data,
+                        created_date,
+                    };
+                    return [newItem, ...state];
+                }
+                case "REMOVE": {
+                    return state.filter((it) => it.id !== action.targetId);
+                }
+                case "EDIT": {
+                    return state.map((it) =>
+                        it.id === action.targetId
+                            ? { ...it, content: action.newContent }
+                            : it
+                    );
+                }
+                default:
+                    return state;
+            }
+        };
+        ```
+        ```javascript
+        function App() {
+        // const [data, setData] = useState([]);
+        const [data, dispatch] = useReducer(reducer, []);
+
+        const dataId = useRef(0);
+
+        const getData = async () => {
+            const res = await fetch(
+                "https://jsonplaceholder.typicode.com/comments"
+            ).then((res) => res.json());
+
+            const initData = res.slice(0, 20).map((it) => {
+                return {
+                    author: it.email,
+                    content: it.body,
+                    emotion: Math.floor(Math.random() * 5) + 1,
+                    created_date: new Date().getTime(),
+                    id: dataId.current++,
+                };
+            });
+            dispatch({ type: "INIT", data: initData });
+        };
+
+        useEffect(() => {
+            getData();
+        }, []);
+
+        const onCreate = useCallback((author, content, emotion) => {
+            dispatch({
+                type: "CREATE",
+                data: { author, content, emotion, id: dataId.current },
+            });
+            dataId.current += 1;
+        }, []);
+
+        const onRemove = useCallback((targetId) => {
+            dispatch({ type: "REMOVE", targetId });
+        }, []);
+
+        const onEdit = useCallback((targetId, newContent) => {
+            dispatch({ type: "EDIT", targetId, newContent });
+        }, []);
+        ```
 ---
 
 ### 컴포넌트 트리에 데이터 공급하기 - Context
