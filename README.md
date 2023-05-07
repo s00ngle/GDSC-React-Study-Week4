@@ -198,6 +198,13 @@
 
 ### 최적화 3 - useCallback
 
+-   `useCallback`
+    ```javascript
+    const memoizedCallback = useCallback(() => {
+        doSomething(a, b);
+    }, [a, b]);
+    ```
+
 ### 최적화 4 - 최적화 완성
 
 ### 복잡한 상태 관리 로직 분리하기 - useReducer
