@@ -40,7 +40,7 @@ function App() {
             "https://jsonplaceholder.typicode.com/comments"
         ).then((res) => res.json());
 
-        const initData = res.slice(0, 20).map((it) => {
+        const initData = res.slice(0, 10).map((it) => {
             return {
                 author: it.email,
                 content: it.body,

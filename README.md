@@ -53,6 +53,11 @@
 
 ### React developer tools
 
+-   Chrome 확장 프로그램 "React Developer Tools"
+    -   컴포넌트 계층 구조 가시화
+    -   각 컴포넌트의 state, props, key값 등을 쉽게 확인할 수 있다.
+    -   rerender되는 컴포넌트 하이라이트 기능
+
 ### 최적화 1 - useMemo
 
 ### 최적화 2 - React.memo
