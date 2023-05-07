@@ -321,6 +321,56 @@
 
 ### 최적화 4 - 최적화 완성
 
+-   `DiaryItem` 최적화
+
+    하나의 일기를 삭제하면 모든 DiaryItem에 대한 리렌더가 발생하는 현상을 방지해보자
+
+    -   DiaryItem의 props 중에 변화할 수 있는 데이터 : `onEdit`, `onRemove`, `content`
+
+    1. `DiaryItem` 컴포넌트를 `React.memo()` 로 묶어준다.
+
+        ```javascript
+        export default React.memo(DiaryItem);
+        ```
+
+    2. `onEdit`, `onRemove` 함수는 `data` state가 변화하면 재생성되는 함수들이기 때문에 App 컴포넌트에서 최적화 해 준다.
+
+        ```javascript
+        const onRemove = (targetId) => {
+            setData(data.filter((it) => it.id !== targetId));
+        };
+
+        const onEdit = (targetId, newContent) => {
+            setData(
+                data.map((it) =>
+                    it.id === targetId ? { ...it, content: newContent } : it
+                )
+            );
+        };
+        ```
+
+        위 상태의 코드를 아래와 같이 수정해준다.
+
+        ```javascript
+        const onRemove = useCallback((targetId) => {
+            setData((data) => data.filter((it) => it.id !== targetId));
+        }, []);
+
+        const onEdit = useCallback((targetId, newContent) => {
+            setData((data) =>
+                data.map((it) =>
+                    it.id === targetId ? { ...it, content: newContent } : it
+                )
+            );
+        }, []);
+        ```
+
+        이제 하나의 일기를 삭제해도 다른 모든 일기 아이템들이 렌더링 되지 않는다.
+
+---
+
 ### 복잡한 상태 관리 로직 분리하기 - useReducer
+
+---
 
 ### 컴포넌트 트리에 데이터 공급하기 - Context
