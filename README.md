@@ -469,11 +469,13 @@
     -   dispatch 안에 전달되는 객체({ type: 1 }) : `Action` 객체
 
 -   App 컴포넌트로부터 data 상태변화 로직 분리하기
+
     1. `useState` 주석처리
         ```javascript
         //const [data, setData] = useState([]);
         ```
     2. `useReducer`를 사용해서 구현
+
         ```javascript
         const reducer = (state, action) => {
             switch (action.type) {
@@ -503,6 +505,7 @@
             }
         };
         ```
+
         ```javascript
         function App() {
         // const [data, setData] = useState([]);
@@ -547,6 +550,28 @@
             dispatch({ type: "EDIT", targetId, newContent });
         }, []);
         ```
+
 ---
 
 ### 컴포넌트 트리에 데이터 공급하기 - Context
+
+-   `DiaryList` 컴포넌트에서 `onRemove()`, `onEdit()`은 사용되지 않고 `DiaryItem` 에게 건네주기 위해 거쳐가기만 하는 Props들이다.
+
+    이런 경우를 `Props Drilling` 이라고 한다.
+
+    이런식으로 전달만 하는 컴포넌트가 많아질 경우 Props의 이름을 바꾸기도 어려워지고, 코드 작성과 수정에 상당한 악영향을 끼치게 된다.
+
+    Props Drilling을 해결하기 위해 나온 것이 바로 `Context` 이다.
+
+-   `Context` 생성
+
+    ```javascript
+    const MyContext = React.createContext(defaultValue);
+    ```
+
+-   `Context Provider`를 통한 데이터 공급
+    ```javascript
+    <MyContext.Provider value={전역으로 전달하고자 하는 값}>
+        {/*이 Context 안에 위치할 자식 컴포넌트들*/}
+    </MyContext.Provider>
+    ```
