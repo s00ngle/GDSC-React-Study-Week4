@@ -11,11 +11,12 @@
     -   죽음 : UnMount
 
 -   useEffect
-    -   ```javascript
-        useEffect(() => {
-            // todo...
-        }, []);
-        ```
+    ````javascript
+       useEffect(() => {
+           // todo...
+       }, []);
+       ```
+    ````
 
 ### React에서 API 호출하기
 
