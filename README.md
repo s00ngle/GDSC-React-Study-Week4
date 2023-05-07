@@ -20,6 +20,8 @@
     }, [Dependency Array]);
     ```
 
+---
+
 ### React에서 API 호출하기
 
 -   jsonplaceholder API 사용하기
@@ -51,12 +53,16 @@
     }, []);
     ```
 
+---
+
 ### React developer tools
 
 -   Chrome 확장 프로그램 "React Developer Tools"
     -   컴포넌트 계층 구조 가시화
     -   각 컴포넌트의 state, props, key값 등을 쉽게 확인할 수 있다.
     -   rerender되는 컴포넌트 하이라이트 기능
+
+---
 
 ### 최적화 1 - useMemo
 
@@ -78,6 +84,8 @@
 
     const { goodCount, badCount, goodRatio } = getDiaryAnalysis;
     ```
+
+---
 
 ### 최적화 2 - React.memo
 
@@ -198,6 +206,8 @@
         };
         ```
 
+---
+
 ### 최적화 3 - useCallback
 
 -   `data` state가 초기값 `[]` 로 존재하다가 App 컴포넌트가 한 번 렌더링이 일어나고, DiaryEditor도 렌더링이 일어난다.
@@ -222,6 +232,10 @@
     }, [a, b]);
     ```
 
+    두 번째 인자로 전달한 dependency array 안에 들어있는 값이 변하지 않으면 첫 번째 인자로 전달한 콜백 함수를 계속 재사용 할 수 있도록 도와주는 리액트 Hook이다.
+
+-   useCallback을 사용해서 최적화 하기
+
     1.  `DiaryEditor.js` 를 `React.memo()`로 감싸준다.
 
         ```javascript
@@ -242,6 +256,68 @@
             setData((data) => [newItem, ...data]);
         }, []);
         ```
+
+    2.  `useCallback()` 으로 `onCreate()`를 감싼다.
+
+        ```javascript
+        const onCreate = useCallback((author, content, emotion) => {
+            const created_date = new Date().getTime();
+            const newItem = {
+                author,
+                content,
+                emotion,
+                created_date,
+                id: dataId.current,
+            };
+            dataId.current += 1;
+            setData([newItem, ...data]);
+        }, []);
+        ```
+
+        하지만 이렇게 하면 저장하기를 했을 때 작성한 하나의 일기만 남게 된다.
+
+        useCallback()을 사용하면서 `dependency array`에 아무 값도 넣어주지 않아 처음 빈 배열 [] 에 `newItem` 하나만 추가해 주기 때문이다.
+
+        ```javascript
+        const onCreate = useCallback(
+            (author, content, emotion) => {
+                const created_date = new Date().getTime();
+                const newItem = {
+                    author,
+                    content,
+                    emotion,
+                    created_date,
+                    id: dataId.current,
+                };
+                dataId.current += 1;
+                setData([newItem, ...data]);
+            },
+            [data]
+        );
+        ```
+
+        하지만 이런식으로 dependency array에 `data`를 추가해 주게 되면 data가 변경될 때 마다 onCreate() 함수를 재생성하기 때문에 원하는 동작을 할 수 없다.
+
+        data state가 변화한다고 해서 onCreate() 함수가 재생성 되지 않길 원하지만, onCreate() 함수가 재생성되지 않으면 최신의 data state 값을 참고할 수 없기 때문에 딜레마에 빠진다.
+
+        이런 상황에서는 `함수형 업데이트` 라는 걸 활용하면 된다.
+
+        ```javascript
+        const onCreate = useCallback((author, content, emotion) => {
+            // ...생략
+            setData((data) => [newItem, ...data]);
+        }, []);
+        ```
+
+        화살표 함수의 형태로 data를 인자로 받아 newItem을 추가한 data를 리턴받는 콜백함수를 setData() 함수한테 전달하면된다.
+
+        이와 같이 `setState()` 함수에 함수를 전달하는 것을 `함수형 업데이트`라고 한다.
+
+        이런 방식을 사용하면 `dependency array`를 비워도 된다.
+
+-   위 동작들로 DiaryEditor의 불필요한 리렌더링을 방지할 수 있다.
+
+---
 
 ### 최적화 4 - 최적화 완성
 
