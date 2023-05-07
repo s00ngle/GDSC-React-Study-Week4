@@ -10,7 +10,7 @@
     -   변화 : Update
     -   죽음 : UnMount
 
--   useEffect
+-   `useEffect`
     ```javascript
     useEffect(() => {
         console.log("Mount!");
@@ -65,19 +65,19 @@
     -   Memoization
         이미 계산한 결과를 기억 해 두었다가 동일한 연산 수행 시 다시 연산하지 않고 기억 해 두었던 데이터를 반환하는 방법
 
--   useMemo
+-   `useMemo`
 
-```javascript
-const getDiaryAnalysis = useMemo(() => {
-    console.log("일기 분석 시작");
-    const goodCount = data.filter((it) => it.emotion >= 5).length;
-    const badCount = data.length - goodCount;
-    const goodRatio = (goodCount / data.length) * 100;
-    return { goodCount, badCount, goodRatio };
-}, [data.length]);
+    ```javascript
+    const getDiaryAnalysis = useMemo(() => {
+        console.log("일기 분석 시작");
+        const goodCount = data.filter((it) => it.emotion >= 5).length;
+        const badCount = data.length - goodCount;
+        const goodRatio = (goodCount / data.length) * 100;
+        return { goodCount, badCount, goodRatio };
+    }, [data.length]);
 
-const { goodCount, badCount, goodRatio } = getDiaryAnalysis;
-```
+    const { goodCount, badCount, goodRatio } = getDiaryAnalysis;
+    ```
 
 ### 최적화 2 - React.memo
 
@@ -85,74 +85,119 @@ const { goodCount, badCount, goodRatio } = getDiaryAnalysis;
     <img src="/README_img/update.png" width="500px" height="450px"></img><br/>
     업데이트 조건을 걸어준다.
 
--   React.memo
-
-```javascript
-const Textview = React.memo(({ text }) => {
-    useEffect(() => {
-        console.log(`Update : Text : ${text}`);
-    });
-    return <div>{text}</div>;
-});
-
-const Countview = React.memo(({ count }) => {
-    useEffect(() => {
-        console.log(`Update :: Count : ${count}`);
-    });
-    return <div>{count}</div>;
-});
-
-const OptimizeTest = () => {
-    const [count, setCount] = useState(1);
-    const [text, setText] = useState("");
-
-    return (
-        <div style={{ padding: 50 }}>
-            <div>
-                <h2>count</h2>
-                <Countview count={count} />
-                <button onClick={() => setCount(count + 1)}>+</button>
-            </div>
-            <div>
-                <h2>text</h2>
-                <Textview text={text} />
-                <input value={text} onChange={(e) => setText(e.target.value)} />
-            </div>
-        </div>
-    );
-};
-```
-
--   객체의 얕은 비교로 인한 문제
-
-    -   javascript는 객체의 주소에 의한 비교(얕은 비교)를 하기 때문
+-   `React.memo`
 
     ```javascript
-    const CounterB = React.memo(({ obj }) => {
+    const Textview = React.memo(({ text }) => {
         useEffect(() => {
-            console.log(`CounterB Update - count: ${obj.count}`);
+            console.log(`Update : Text : ${text}`);
         });
-        return <div>{obj.count}</div>;
+        return <div>{text}</div>;
+    });
+
+    const Countview = React.memo(({ count }) => {
+        useEffect(() => {
+            console.log(`Update :: Count : ${count}`);
+        });
+        return <div>{count}</div>;
     });
 
     const OptimizeTest = () => {
-        const [obj, setObj] = useState({
-            count: 1,
-        });
+        const [count, setCount] = useState(1);
+        const [text, setText] = useState("");
 
         return (
             <div style={{ padding: 50 }}>
                 <div>
-                    <h2>Counter B</h2>
-                    <CounterB obj={obj} />
-                    <button onClick={() => setObj({ count: obj.count })}>
-                        B button
-                    </button>
+                    <h2>count</h2>
+                    <Countview count={count} />
+                    <button onClick={() => setCount(count + 1)}>+</button>
+                </div>
+                <div>
+                    <h2>text</h2>
+                    <Textview text={text} />
+                    <input
+                        value={text}
+                        onChange={(e) => setText(e.target.value)}
+                    />
                 </div>
             </div>
         );
     };
     ```
+
+-   객체의 얕은 비교로 인한 문제
+
+    -   javascript는 객체의 주소에 의한 비교(얕은 비교)를 하기 때문
+
+        ```javascript
+        const CounterB = React.memo(({ obj }) => {
+            useEffect(() => {
+                console.log(`CounterB Update - count: ${obj.count}`);
+            });
+            return <div>{obj.count}</div>;
+        });
+
+        const OptimizeTest = () => {
+            const [obj, setObj] = useState({
+                count: 1,
+            });
+
+            return (
+                <div style={{ padding: 50 }}>
+                    <div>
+                        <h2>Counter B</h2>
+                        <CounterB obj={obj} />
+                        <button onClick={() => setObj({ count: obj.count })}>
+                            B button
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+        ```
+
+    -   아래와 같이 React.memo 안에 `areEqual()` 함수를 구현해서 사용하면 된다.
+
+        ```javascript
+        const CounterB = ({ obj }) => {
+            useEffect(() => {
+                console.log(`CounterB Update - count: ${obj.count}`);
+            });
+            return <div>{obj.count}</div>;
+        };
+
+        const areEqual = (prevProps, nextProps) => {
+            if (prevProps.obj.count === nextProps.obj.count) {
+                return true;
+            }
+            return false;
+        };
+
+        const MemoizedCounterB = React.memo(CounterB, areEqual);
+
+        const OptimizeTest = () => {
+            // const [count, setCount] = useState(1);
+            // const [text, setText] = useState("");
+
+            const [count, setCount] = useState(1);
+            const [obj, setObj] = useState({
+                count: 1,
+            });
+
+            return (
+                <div style={{ padding: 50 }}>
+                    <div>
+                        <h2>Counter B</h2>
+                        <MemoizedCounterB obj={obj} />
+                        <button onClick={() => setObj({ count: obj.count })}>
+                            B button
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+        ```
 
 ### 최적화 3 - useCallback
 
