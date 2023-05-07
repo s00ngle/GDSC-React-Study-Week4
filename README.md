@@ -198,12 +198,48 @@
 
 ### 최적화 3 - useCallback
 
--   `useCallback` : 메모이제이션된 콜백을 반환한다.
+-   `data` state가 초기값 `[]` 로 존재하다가 App 컴포넌트가 한 번 렌더링이 일어나고, DiaryEditor도 렌더링이 일어난다.
+
+    이후 컴포넌트가 Mount된 시점에 호출한 `getData()` 함수의 결과를 `setData()` 에 전달하게 되면서 data state가 한 번 더 바뀌게 된다. 따라서 App 컴포넌트는 Mount 되자마자 2번의 렌더링이 진행된다.
+
+    때문에 DiaryEditor 컴포넌트가 전달받는 `onCreate()` 함수도 App 컴포넌트가 렌더링 되면서 다시 생성된다.
+
+    결론적으로 `DiaryEditor`의 onCreate() 함수가 App 컴포넌트가 렌더링 될 때 마다 다시 만들어지기 때문에 DiaryEditor의 렌더링이 발생한다.
+
+    그러나 `DiaryEditor` 컴포넌트는 일기를 삭제했을 때 렌더링 될 필요가 없다.
+
+    onCreate() 함수가 다시 생성되지 않게 만들어야 하는데, `useMemo()` 기능은 함수가 아니라 값을 반환하기 때문에 사용할 수 없다.
+
+    이 때 사용할 수 있는 기능이 `useCallback()` 이다.
+
+-   `useCallback` : 메모이제이션된 콜백을 반환하는 기능
+
     ```javascript
     const memoizedCallback = useCallback(() => {
         doSomething(a, b);
     }, [a, b]);
     ```
+
+    1.  `DiaryEditor.js` 를 `React.memo()`로 감싸준다.
+
+        ```javascript
+        export default React.memo(DiaryEditor);
+        ```
+
+        ```javascript
+        const onCreate = useCallback((author, content, emotion) => {
+            const created_date = new Date().getTime();
+            const newItem = {
+                author,
+                content,
+                emotion,
+                created_date,
+                id: dataId.current,
+            };
+            dataId.current += 1;
+            setData((data) => [newItem, ...data]);
+        }, []);
+        ```
 
 ### 최적화 4 - 최적화 완성
 
