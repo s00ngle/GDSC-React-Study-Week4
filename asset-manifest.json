@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/GDSC-React-Study-Week4/static/css/main.aa073c5e.css",
+    "main.js": "/GDSC-React-Study-Week4/static/js/main.836116d2.js",
+    "index.html": "/GDSC-React-Study-Week4/index.html",
+    "main.aa073c5e.css.map": "/GDSC-React-Study-Week4/static/css/main.aa073c5e.css.map",
+    "main.836116d2.js.map": "/GDSC-React-Study-Week4/static/js/main.836116d2.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.aa073c5e.css",
+    "static/js/main.836116d2.js"
+  ]
+}
